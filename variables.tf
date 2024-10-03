@@ -118,3 +118,4 @@ variable "logging_types" {
     "telemetry"   = true
   }
 }
+

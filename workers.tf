@@ -54,7 +54,7 @@ resource "aws_launch_template" "boundary_worker" {
     name = aws_iam_instance_profile.boundary_worker.name
   }
 
-  user_data = base64encode(templatefile("./templates/configure-worker.sh", {
+  user_data = base64encode(templatefile("${path.module}/templates/configure-worker.sh", {
     KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
     BOUNDARY_LB_DNS_NAME   = aws_lb.boundary_lb.dns_name
   }))

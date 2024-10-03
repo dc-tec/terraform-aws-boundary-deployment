@@ -80,7 +80,7 @@ resource "aws_launch_template" "boundary_controller" {
     name = aws_iam_instance_profile.boundary_controller.name
   }
 
-  user_data = base64encode(templatefile("./templates/configure-controller.sh", {
+  user_data = base64encode(templatefile("${path.module}/templates/configure-controller.sh", {
     DB_USERNAME            = var.db_username
     DB_PASSWORD            = random_password.boundary_db_password.result
     DB_ENDPOINT            = aws_db_instance.boundary_db.endpoint
@@ -88,8 +88,8 @@ resource "aws_launch_template" "boundary_controller" {
     KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
     KMS_RECOVERY_KEY_ID    = aws_kms_key.boundary_recovery.id
     KMS_ROOT_KEY_ID        = aws_kms_key.boundary_root.id
-    SERVER_KEY             = var.use_acm ? aws_acm_certificate.acm_boundary[0].private_key : tls_private_key.boundary_key[0].private_key_pem
-    SERVER_CERT            = var.use_acm ? aws_acm_certificate.acm_boundary[0].certificate_chain : tls_self_signed_cert.boundary_cert[0].cert_pem
+    SERVER_KEY             = tls_private_key.boundary_key.private_key_pem
+    SERVER_CERT            = tls_self_signed_cert.boundary_cert.cert_pem
     LOGGING_ENABLED        = var.logging_enabled
     AUDIT_ENABLED          = var.logging_types.audit
     OBSERVERVATION_ENABLED = var.logging_types.observation

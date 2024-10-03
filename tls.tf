@@ -30,16 +30,12 @@ resource "aws_acm_certificate_validation" "acm_validation" {
 }
 
 resource "tls_private_key" "boundary_key" {
-  count = var.use_acm ? 0 : 1
-
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "tls_self_signed_cert" "boundary_cert" {
-  count = var.use_acm ? 0 : 1
-
-  private_key_pem   = tls_private_key.boundary_key[0].private_key_pem
+  private_key_pem   = tls_private_key.boundary_key.private_key_pem
   is_ca_certificate = true
 
   subject {
