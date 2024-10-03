@@ -62,7 +62,7 @@ listener "tcp" {
   # The purpose of this listener block
   purpose = "api"
 
-  tls_disable = ${TLS_DISABLE}
+  tls_disable = false
   tls_cert_file = "/etc/boundary.d/tls/cert.pem"
   tls_key_file = "/etc/boundary.d/tls/key.pem"
 }
