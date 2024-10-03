@@ -133,3 +133,18 @@ variable "boundary_controller_asg" {
     desired_capacity = 3
   }
 }
+
+variable "boundary_worker_asg" {
+  type = object({
+    min_size         = number
+    max_size         = number
+    desired_capacity = number
+  })
+  description = "The configuration for the Boundary Controller Auto Scaling Group"
+
+  default = {
+    min_size         = 1
+    max_size         = 10
+    desired_capacity = 1
+  }
+}

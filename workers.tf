@@ -67,9 +67,9 @@ resource "aws_launch_template" "boundary_worker" {
 
 resource "aws_autoscaling_group" "boundary_worker" {
   name             = "${var.name}-worker-asg"
-  min_size         = 1
-  max_size         = 3
-  desired_capacity = 1
+  min_size         = var.boundary_worker_asg.min_size
+  max_size         = var.boundary_worker_asg.max_size
+  desired_capacity = var.boundary_worker_asg.desired_capacity
 
   vpc_zone_identifier = var.public_subnet_ids
 
