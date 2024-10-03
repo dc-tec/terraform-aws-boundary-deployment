@@ -86,6 +86,8 @@ No modules.
 | <a name="input_allowed_ssh_inbound_cidr_blocks"></a> [allowed\_ssh\_inbound\_cidr\_blocks](#input\_allowed\_ssh\_inbound\_cidr\_blocks) | CIDR blocks to allow SSH access to the Controllers and Workers | `list(string)` | <pre>[<br>  "0.0.0.0/0"<br>]</pre> | no |
 | <a name="input_aws_route53_zone"></a> [aws\_route53\_zone](#input\_aws\_route53\_zone) | The Route 53 zone to create the A record in | `string` | n/a | yes |
 | <a name="input_boundary_a_record"></a> [boundary\_a\_record](#input\_boundary\_a\_record) | The A record to create in Route 53 for the Boundary Controller | `string` | `"boundary.example.com"` | no |
+| <a name="input_boundary_controller_asg"></a> [boundary\_controller\_asg](#input\_boundary\_controller\_asg) | The configuration for the Boundary Controller Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 3,<br>  "max_size": 6,<br>  "min_size": 3<br>}</pre> | no |
+| <a name="input_boundary_worker_asg"></a> [boundary\_worker\_asg](#input\_boundary\_worker\_asg) | The configuration for the Boundary Controller Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 1,<br>  "max_size": 10,<br>  "min_size": 1<br>}</pre> | no |
 | <a name="input_controller_instance_type"></a> [controller\_instance\_type](#input\_controller\_instance\_type) | The instance type to use for the Boundary Controller | `string` | `"t3.micro"` | no |
 | <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | The instance class to use for the Boundary Database | `string` | `"db.t3.micro"` | no |
 | <a name="input_db_username"></a> [db\_username](#input\_db\_username) | The username to use for the Boundary Database user | `string` | `"postgres"` | no |
@@ -96,7 +98,7 @@ No modules.
 | <a name="input_private_subnet_cidr_blocks"></a> [private\_subnet\_cidr\_blocks](#input\_private\_subnet\_cidr\_blocks) | List of private subnet CIDR blocks | `list(string)` | n/a | yes |
 | <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | List of private subnet IDs | `list(string)` | n/a | yes |
 | <a name="input_public_subnet_ids"></a> [public\_subnet\_ids](#input\_public\_subnet\_ids) | List of public subnet IDs | `list(string)` | n/a | yes |
-| <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | The public key to use for SSH access | `string` | n/a | yes |
+| <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | The public key to use for SSH access | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | n/a | yes |
 | <a name="input_use_acm"></a> [use\_acm](#input\_use\_acm) | Whether to use ACM to generate a certificate or generate a self-signed certificate for the Boundary Controller | `bool` | `true` | no |
 | <a name="input_use_route53"></a> [use\_route53](#input\_use\_route53) | Use Route53 to create a DNS record | `bool` | `true` | no |
@@ -105,5 +107,9 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_boundary_lb_dns"></a> [boundary\_lb\_dns](#output\_boundary\_lb\_dns) | DNS address of the Load Balancer, if chosen to opt out of route53 usage |
+| <a name="output_boundary_worker_auth_key"></a> [boundary\_worker\_auth\_key](#output\_boundary\_worker\_auth\_key) | Boundary Worker Authentication Key, used for initializition of Boundary |
+| <a name="output_boundary_worker_sg_id"></a> [boundary\_worker\_sg\_id](#output\_boundary\_worker\_sg\_id) | Boundary Worker Security Group ID |
 <!-- END_TF_DOCS -->

@@ -59,6 +59,8 @@ variable "db_username" {
 variable "ssh_public_key" {
   type        = string
   description = "The public key to use for SSH access"
+
+  default = null
 }
 
 variable "controller_instance_type" {
