@@ -1,0 +1,18 @@
+name: Run Renovate
+
+on:
+  schedule:
+    - cron: "30 03 * * 0"
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Renovate
+        uses: renovatebot/github-action@v40.2.10
+        with:
+          configurationFile: renovate.json5
+          renovate-version: full
+          token: ${{ secrets.RENOVATE_TOKEN }}
