@@ -119,3 +119,17 @@ variable "logging_types" {
   }
 }
 
+variable "boundary_controller_asg" {
+  type = object({
+    min_size         = number
+    max_size         = number
+    desired_capacity = number
+  })
+  description = "The configuration for the Boundary Controller Auto Scaling Group"
+
+  default = {
+    min_size         = 3
+    max_size         = 6
+    desired_capacity = 3
+  }
+}

@@ -73,7 +73,7 @@ resource "aws_launch_template" "boundary_controller" {
   name                   = "${var.name}-controller-lt"
   image_id               = data.aws_ami.main.id
   instance_type          = var.controller_instance_type
-  key_name               = var.ssh_public_key
+  key_name               = var.enable_ssh ? var.ssh_public_key : null
   vpc_security_group_ids = [aws_security_group.boundary_controller.id]
 
   iam_instance_profile {
@@ -105,9 +105,9 @@ resource "aws_launch_template" "boundary_controller" {
 
 resource "aws_autoscaling_group" "boundary_controller" {
   name             = "${var.name}-controller-asg"
-  min_size         = 1
-  max_size         = 3
-  desired_capacity = 1
+  min_size         = var.boundary_controller_asg.min_size
+  max_size         = var.boundary_controller_asg.max_size
+  desired_capacity = var.boundary_controller_asg.desired_capacity
 
   vpc_zone_identifier = var.public_subnet_ids
   target_group_arns = [
