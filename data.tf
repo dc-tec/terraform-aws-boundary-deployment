@@ -1,9 +1,3 @@
-data "aws_region" "current" {}
-
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
 data "aws_ami" "main" {
   most_recent = true
   owners      = ["099720109477"]

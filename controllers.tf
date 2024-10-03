@@ -56,7 +56,7 @@ resource "aws_security_group_rule" "allow_ssh_boundary_controller" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = var.allowed_inbound_cidr_blocks
+  cidr_blocks       = var.allowed_ssh_inbound_cidr_blocks
   security_group_id = aws_security_group.boundary_controller.id
 }
 
@@ -72,7 +72,7 @@ resource "aws_security_group_rule" "allow_egress_boundary_controller" {
 resource "aws_launch_template" "boundary_controller" {
   name                   = "${var.name}-controller-lt"
   image_id               = data.aws_ami.main.id
-  instance_type          = "t3.micro"
+  instance_type          = var.controller_instance_type
   key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_controller.id]
 
@@ -88,8 +88,13 @@ resource "aws_launch_template" "boundary_controller" {
     KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
     KMS_RECOVERY_KEY_ID    = aws_kms_key.boundary_recovery.id
     KMS_ROOT_KEY_ID        = aws_kms_key.boundary_root.id
-    SERVER_KEY             = tls_private_key.boundary_key.private_key_pem
-    SERVER_CERT            = tls_self_signed_cert.boundary_cert.cert_pem
+    SERVER_KEY             = var.use_acm ? aws_acm_certificate.acm_boundary[0].private_key : tls_private_key.boundary_key[0].private_key_pem
+    SERVER_CERT            = var.use_acm ? aws_acm_certificate.acm_boundary[0].certificate_chain : tls_self_signed_cert.boundary_cert[0].cert_pem
+    LOGGING_ENABLED        = var.logging_enabled
+    AUDIT_ENABLED          = var.logging_types.audit
+    OBSERVERVATION_ENABLED = var.logging_types.observation
+    SYSEVENTS_ENABLED      = var.logging_types.sysevents
+    TELEMETRY_ENABLED      = var.logging_types.telemetry
   }))
 
   metadata_options {

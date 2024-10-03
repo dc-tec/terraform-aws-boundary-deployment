@@ -3,14 +3,11 @@ variable "vpc_id" {
   description = "The ID of the VPC"
 }
 
-variable "vpc_cidr_block" {
-  type        = string
-  description = "The CIDR block for the VPC"
-}
-
-variable "allowed_inbound_cidr_blocks" {
+variable "allowed_ssh_inbound_cidr_blocks" {
   type        = list(string)
   description = "CIDR blocks to allow SSH access to the Controllers and Workers"
+
+  default = ["0.0.0.0/0"]
 }
 
 variable "enable_ssh" {
@@ -18,13 +15,6 @@ variable "enable_ssh" {
   description = "Whether to enable SSH access to the Controllers and Workers"
 
   default = false
-}
-
-variable "controller_count" {
-  type        = number
-  description = "The number of Boundary Controllers to deploy"
-
-  default = 3
 }
 
 variable "private_subnet_ids" {
@@ -35,11 +25,6 @@ variable "private_subnet_ids" {
 variable "public_subnet_ids" {
   type        = list(string)
   description = "List of public subnet IDs"
-}
-
-variable "public_subnet_cidr_blocks" {
-  type        = list(string)
-  description = "List of public subnet CIDR blocks"
 }
 
 variable "private_subnet_cidr_blocks" {
@@ -57,6 +42,13 @@ variable "tags" {
   description = "Tags to apply to all resources"
 }
 
+variable "db_instance_class" {
+  type        = string
+  description = "The instance class to use for the Boundary Database"
+
+  default = "db.t3.micro"
+}
+
 variable "db_username" {
   type        = string
   description = "The username to use for the Boundary Database user"
@@ -69,14 +61,60 @@ variable "ssh_public_key" {
   description = "The public key to use for SSH access"
 }
 
+variable "controller_instance_type" {
+  type        = string
+  description = "The instance type to use for the Boundary Controller"
+  default     = "t3.micro"
+}
+
+variable "worker_instance_type" {
+  type        = string
+  description = "The instance type to use for the Boundary Workers"
+
+  default = "t3.micro"
+}
+
 variable "boundary_a_record" {
   type        = string
   description = "The A record to create in Route 53 for the Boundary Controller"
 
-  default = "boundary.adfinis.dev"
+  default = "boundary.example.com"
 }
 
 variable "aws_route53_zone" {
   type        = string
   description = "The Route 53 zone to create the A record in"
+}
+
+variable "use_route53" {
+  type        = bool
+  description = "Use Route53 to create a DNS record"
+
+  default = true
+}
+
+variable "use_acm" {
+  type        = bool
+  description = "Whether to use ACM to generate a certificate or generate a self-signed certificate for the Boundary Controller"
+
+  default = true
+}
+
+variable "logging_enabled" {
+  type        = bool
+  description = "Whether to enable logging for the Boundary Controller"
+
+  default = false
+}
+
+variable "logging_types" {
+  type        = map(bool)
+  description = "The types of logs to enable for the Boundary Controller"
+
+  default = {
+    "audit"       = true,
+    "observation" = true,
+    "sysevents"   = true,
+    "telemetry"   = true
+  }
 }

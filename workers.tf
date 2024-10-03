@@ -24,12 +24,13 @@ resource "aws_security_group_rule" "boundary_worker_allow_9202_users" {
 }
 
 resource "aws_security_group_rule" "allow_ssh_boundary_worker" {
-  count             = var.enable_ssh ? 1 : 0
+  count = var.enable_ssh ? 1 : 0
+
   type              = "ingress"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = var.allowed_ssh_cidr_blocks
+  cidr_blocks       = var.allowed_ssh_inbound_cidr_blocks
   security_group_id = aws_security_group.boundary_worker.id
 }
 
@@ -45,7 +46,7 @@ resource "aws_security_group_rule" "boundary_worker_allow_egress" {
 resource "aws_launch_template" "boundary_worker" {
   name                   = "${var.name}-worker-lt"
   image_id               = data.aws_ami.main.id
-  instance_type          = var.instance_type
+  instance_type          = var.worker_instance_type
   key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_worker.id]
 
