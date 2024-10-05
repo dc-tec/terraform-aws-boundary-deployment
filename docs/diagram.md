@@ -2,9 +2,10 @@
 
 This diagram represents the high-level architecture of the Boundary deployment on AWS using this Terraform module.
 
+```mermaid
 graph TD
-VPC[AWS VPC] --> |contains| PublicSubnets[Public Subnets]
-VPC --> |contains| PrivateSubnets[Private Subnets]
+    VPC[AWS VPC] --> |contains| PublicSubnets[Public Subnets]
+    VPC --> |contains| PrivateSubnets[Private Subnets]
 
     PublicSubnets --> ALB[Application Load Balancer]
     PrivateSubnets --> NLB[Network Load Balancer]
@@ -33,3 +34,4 @@ VPC --> |contains| PrivateSubnets[Private Subnets]
 
     IAM[IAM Roles and Policies] --> |attached to| ControllerLT
     IAM --> |attached to| WorkerLT
+```
