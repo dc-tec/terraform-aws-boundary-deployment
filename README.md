@@ -46,10 +46,6 @@ module "boundary" {
 - TLS is enabled for the Boundary API listener.
 - SSH access is disabled by default but can be enabled if required.
 
-## Customization
-
-You can customize the deployment by adjusting the input variables. For example, you can change instance types, enable logging, or modify the Auto Scaling Group configurations.
-
 ## Testing
 
 This module includes Terraform tests located in the `tests` directory. These tests ensure that the security groups, launch templates, and other resources are correctly configured.
