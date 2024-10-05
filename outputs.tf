@@ -16,3 +16,15 @@ output "boundary_worker_sg_id" {
 
   value = aws_security_group.boundary_worker.id
 }
+
+output "boundary_aws_plugin_access_key_id" {
+  description = "Boundary AWS Plugin Access Key ID"
+  value       = aws_iam_access_key.boundary.id
+}
+
+output "boundary_aws_plugin_secret_access_key" {
+  description = "Boundary AWS Plugin Secret Access Key"
+
+  value     = aws_iam_access_key.boundary.secret
+  sensitive = true
+}

@@ -57,6 +57,8 @@ resource "aws_launch_template" "boundary_worker" {
   user_data = base64encode(templatefile("${path.module}/templates/configure-worker.sh", {
     KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
     BOUNDARY_LB_DNS_NAME   = aws_lb.boundary_lb.dns_name
+    LOGGING_ENABLED        = var.logging_enabled
+    CLOUDWATCH_LOG_GROUP   = var.logging_enabled ? aws_cloudwatch_log_group.boundary_worker[0].name : ""
   }))
 
   metadata_options {
@@ -89,4 +91,12 @@ resource "aws_autoscaling_group" "boundary_worker" {
     value               = "${var.name}-worker-asg"
     propagate_at_launch = true
   }
+}
+
+resource "aws_cloudwatch_log_group" "boundary_worker" {
+  count = var.logging_enabled ? 1 : 0
+
+  name              = "/aws/ec2/${var.name}-worker"
+  retention_in_days = var.logging_retention_in_days
+  tags              = var.tags
 }

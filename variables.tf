@@ -109,18 +109,6 @@ variable "logging_enabled" {
   default = false
 }
 
-variable "logging_types" {
-  type        = map(bool)
-  description = "The types of logs to enable for the Boundary Controller"
-
-  default = {
-    "audit"       = true,
-    "observation" = true,
-    "sysevents"   = true,
-    "telemetry"   = true
-  }
-}
-
 variable "boundary_controller_asg" {
   type = object({
     min_size         = number
@@ -149,4 +137,11 @@ variable "boundary_worker_asg" {
     max_size         = 10
     desired_capacity = 1
   }
+}
+
+variable "logging_retention_in_days" {
+  type        = number
+  description = "The number of days to retain logs for"
+
+  default = 30
 }

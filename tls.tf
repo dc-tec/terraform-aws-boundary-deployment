@@ -3,23 +3,28 @@ resource "aws_acm_certificate" "acm_boundary" {
 
   domain_name       = var.boundary_a_record
   validation_method = "DNS"
-  tags              = merge({ "Name" = "${var.boundary_a_record}" }, var.tags)
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = merge({ "Name" = "${var.boundary_a_record}" }, var.tags)
 }
 
 resource "aws_route53_record" "acm_dns_validation" {
-  for_each = var.use_acm ? {} : {
+  for_each = var.use_acm ? {
     for dvo in aws_acm_certificate.acm_boundary[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
-      type   = dvo.resource_record_type
       record = dvo.resource_record_value
+      type   = dvo.resource_record_type
     }
-  }
+  } : {}
 
-  name    = each.value.name
-  records = [each.value.record]
-  ttl     = 60
-  type    = each.value.type
-  zone_id = var.aws_route53_zone
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.aws_route53_zone
 }
 
 resource "aws_acm_certificate_validation" "acm_validation" {

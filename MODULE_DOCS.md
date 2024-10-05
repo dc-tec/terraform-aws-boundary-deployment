@@ -12,7 +12,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.69.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.70.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.6.3 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.6 |
 
@@ -28,6 +28,8 @@ No modules.
 | [aws_acm_certificate_validation.acm_validation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_autoscaling_group.boundary_controller](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_autoscaling_group.boundary_worker](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
+| [aws_cloudwatch_log_group.boundary_controller](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.boundary_worker](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_db_instance.boundary_db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance) | resource |
 | [aws_db_subnet_group.boundary_db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_iam_access_key.boundary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key) | resource |
@@ -37,6 +39,8 @@ No modules.
 | [aws_iam_role.boundary_worker](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.boundary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.boundary_worker](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.cloudwatch_controller](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.cloudwatch_worker](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_user.boundary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user) | resource |
 | [aws_iam_user_policy.boundary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy) | resource |
 | [aws_kms_alias.boundary_recovery](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
@@ -99,7 +103,7 @@ No modules.
 | <a name="input_db_username"></a> [db\_username](#input\_db\_username) | The username to use for the Boundary Database user | `string` | `"postgres"` | no |
 | <a name="input_enable_ssh"></a> [enable\_ssh](#input\_enable\_ssh) | Whether to enable SSH access to the Controllers and Workers | `bool` | `false` | no |
 | <a name="input_logging_enabled"></a> [logging\_enabled](#input\_logging\_enabled) | Whether to enable logging for the Boundary Controller | `bool` | `false` | no |
-| <a name="input_logging_types"></a> [logging\_types](#input\_logging\_types) | The types of logs to enable for the Boundary Controller | `map(bool)` | <pre>{<br>  "audit": true,<br>  "observation": true,<br>  "sysevents": true,<br>  "telemetry": true<br>}</pre> | no |
+| <a name="input_logging_retention_in_days"></a> [logging\_retention\_in\_days](#input\_logging\_retention\_in\_days) | The number of days to retain logs for | `number` | `30` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the deployment | `string` | n/a | yes |
 | <a name="input_private_subnet_cidr_blocks"></a> [private\_subnet\_cidr\_blocks](#input\_private\_subnet\_cidr\_blocks) | List of private subnet CIDR blocks | `list(string)` | n/a | yes |
 | <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | List of private subnet IDs | `list(string)` | n/a | yes |
@@ -115,6 +119,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_boundary_aws_plugin_access_key_id"></a> [boundary\_aws\_plugin\_access\_key\_id](#output\_boundary\_aws\_plugin\_access\_key\_id) | Boundary AWS Plugin Access Key ID |
+| <a name="output_boundary_aws_plugin_secret_access_key"></a> [boundary\_aws\_plugin\_secret\_access\_key](#output\_boundary\_aws\_plugin\_secret\_access\_key) | Boundary AWS Plugin Secret Access Key |
 | <a name="output_boundary_lb_dns"></a> [boundary\_lb\_dns](#output\_boundary\_lb\_dns) | DNS address of the Load Balancer, if chosen to opt out of route53 usage |
 | <a name="output_boundary_worker_auth_key"></a> [boundary\_worker\_auth\_key](#output\_boundary\_worker\_auth\_key) | Boundary Worker Authentication Key, used for initializition of Boundary |
 | <a name="output_boundary_worker_sg_id"></a> [boundary\_worker\_sg\_id](#output\_boundary\_worker\_sg\_id) | Boundary Worker Security Group ID |

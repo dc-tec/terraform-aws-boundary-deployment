@@ -1,3 +1,4 @@
+# Controller IAM
 resource "aws_iam_role" "boundary_controller" {
   name = "${var.name}-controller"
 
@@ -47,6 +48,7 @@ resource "aws_iam_role_policy" "boundary" {
 EOF
 }
 
+# Worker IAM
 resource "aws_iam_role" "boundary_worker" {
   name = "${var.name}-worker"
 
@@ -94,6 +96,7 @@ resource "aws_iam_role_policy" "boundary_worker" {
 EOF
 }
 
+# AWS Plugin Config
 resource "aws_iam_user" "boundary" {
   name = "${var.name}-aws-plugin-user"
   path = "/"
@@ -103,6 +106,7 @@ resource "aws_iam_access_key" "boundary" {
   user = aws_iam_user.boundary.name
 }
 
+# TODO: Should make this more dynamic, and allow for more granular control over the resources
 resource "aws_iam_user_policy" "boundary" {
   name   = "BoundaryDescribeInstances"
   user   = aws_iam_user.boundary.name
@@ -118,6 +122,57 @@ resource "aws_iam_user_policy" "boundary" {
       "Resource": "*"
     }
   ]
+}
+EOF
+}
+
+# CloudWatch Config TODO:(check if we need to scope the permissions further on resource)
+resource "aws_iam_role_policy" "cloudwatch_controller" {
+  count = var.logging_enabled ? 1 : 0
+
+  name = "${var.name}-controller-cloudwatch"
+  role = aws_iam_role.boundary_controller.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams"
+    ],
+    "Resource": [
+      "arn:aws:logs:*:*:*"
+    ]
+  }
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "cloudwatch_worker" {
+  count = var.logging_enabled ? 1 : 0
+
+  name = "${var.name}-worker-cloudwatch"
+  role = aws_iam_role.boundary_worker.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams"
+    ],
+    "Resource": [
+      "arn:aws:logs:*:*:*"
+    ]
+  }
 }
 EOF
 }

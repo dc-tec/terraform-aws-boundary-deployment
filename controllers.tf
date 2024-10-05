@@ -76,6 +76,7 @@ resource "aws_launch_template" "boundary_controller" {
   key_name               = var.enable_ssh ? var.ssh_public_key : null
   vpc_security_group_ids = [aws_security_group.boundary_controller.id]
 
+
   iam_instance_profile {
     name = aws_iam_instance_profile.boundary_controller.name
   }
@@ -91,10 +92,7 @@ resource "aws_launch_template" "boundary_controller" {
     SERVER_KEY             = tls_private_key.boundary_key.private_key_pem
     SERVER_CERT            = tls_self_signed_cert.boundary_cert.cert_pem
     LOGGING_ENABLED        = var.logging_enabled
-    AUDIT_ENABLED          = var.logging_types.audit
-    OBSERVERVATION_ENABLED = var.logging_types.observation
-    SYSEVENTS_ENABLED      = var.logging_types.sysevents
-    TELEMETRY_ENABLED      = var.logging_types.telemetry
+    CLOUDWATCH_LOG_GROUP   = var.logging_enabled ? aws_cloudwatch_log_group.boundary_controller[0].name : ""
   }))
 
   metadata_options {
@@ -131,4 +129,12 @@ resource "aws_autoscaling_group" "boundary_controller" {
     value               = "${var.name}-controller-asg"
     propagate_at_launch = true
   }
+}
+
+resource "aws_cloudwatch_log_group" "boundary_controller" {
+  count = var.logging_enabled ? 1 : 0
+
+  name              = "/aws/ec2/${var.name}-controller"
+  retention_in_days = var.logging_retention_in_days
+  tags              = var.tags
 }

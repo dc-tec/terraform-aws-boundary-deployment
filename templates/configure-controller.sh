@@ -8,7 +8,7 @@ UUID=$(head /dev/urandom | tr -dc a-z0-9 | head -c 4)
 echo "Installing Packages"
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-apt update -y && apt install -y boundary jq
+apt update -y && apt install -y boundary jq awscli
 
 # Get token for fetching metadata and local ipv4
 echo "Retrieving local IP"
@@ -88,12 +88,71 @@ listener "tcp" {
 }
 
 # Event sinks configuration
-if [ "${LOGGING_ENABLED}" = "true"]; then
+if [ "${LOGGING_ENABLED}" = "true" ]; then
 events {
-  audit_enabled = ${AUDIT_ENABLED}
-  observeration_enabled = ${OBSERVERVATION_ENABLED}
-  sysevents_enabled = ${SYSEVENTS_ENABLED}
-  telemetry_enabled = ${TELEMETRY_ENABLED}
+  audit_enabled = true
+  observation_enabled = true
+  sysevents_enabled = true
+  telemetry_enabled = true
+
+  sink "stderr" {
+    name = "all-events"
+    description = "All events will be logged to stderr sink"
+    event_types = ["*"]
+    format = "cloudevents-json"
+  }
+
+  sink {
+    name = "controller-audit-sink"
+    description = "Send Controller Audit Logs to File"
+    event_types = ["audit"]
+    format = "cloudevents-json"
+
+    file {
+      path = "/logs"
+      file_name = "controller-audit.log"
+    }
+
+    audit_config {
+      audit_filter_overrides = {
+        secret = "encrypt"
+        sensitive = "hmac-sha256"
+      }
+    }
+  }
+
+  sink {
+    name = "controller-auth-sink"
+    description = "Send Controller Auth Logs to File"
+    event_types = ["observeration"]
+    format = "cloudevents-json"
+
+    allow_filter = [
+      "\"/data/request_info/path\" contains \":authenticate\""
+    ]
+
+    file {
+      path = "/logs"
+      file_name = "controller-auth.log"
+    }
+  }
+
+  sink {
+    name = "controller-session-sink"
+    description = "Send Controller Session Logs to File"
+    event_types = ["audit"]
+    format = "cloudevents-json"
+
+    allow_filter = [
+      "\"/data/request_info/path\" contains \":authorize-session\"",
+      "\"/data/request_info/method\" contains \"SessionService\""
+    ]
+
+    file {
+      path = "/logs"
+      file_name = "controller-session.log"
+    }
+  }
 }
 fi
 
@@ -153,3 +212,51 @@ systemctl daemon-reload
 echo "Starting Boundary Service"
 systemctl enable boundary
 systemctl start boundary
+
+# Check if the service started successfully
+if systemctl is-active --quiet boundary; then
+    echo "Boundary service started successfully (status code: 0)"
+else
+    status_code=$?
+    echo "Failed to start Boundary service (status code: $status_code)"
+    exit $status_code
+fi
+
+if [ "${LOGGING_ENABLED}" = "true" ]; then
+  # Configure CloudWatch Logs
+  echo "Configuring CloudWatch Logs"
+  mkdir -p /etc/awslogs
+  cat > /etc/awslogs/awslogs.conf <<- EOF
+[general]
+state_file = /var/lib/awslogs/agent-state
+
+[/var/log/syslog]
+file = /var/log/syslog
+log_group_name = ${CLOUDWATCH_LOG_GROUP}
+log_stream_name = {instance_id}/syslog
+datetime_format = '%d %b %Y %H:%M:%S'
+
+[/logs/controller-audit.log]
+file = /logs/controller-audit.log
+log_group_name = ${CLOUDWATCH_LOG_GROUP}
+log_stream_name = {instance_id}/controller-audit
+datetime_format = '%d %b %Y %H:%M:%S'
+
+[/logs/controller-auth.log]
+file = /logs/controller-auth.log
+log_group_name = ${CLOUDWATCH_LOG_GROUP}
+log_stream_name = {instance_id}/controller-auth
+datetime_format = '%d %b %Y %H:%M:%S'
+
+[/logs/controller-session.log]
+file = /logs/controller-session.log
+log_group_name = ${CLOUDWATCH_LOG_GROUP}
+log_stream_name = {instance_id}/controller-session
+datetime_format = '%d %b %Y %H:%M:%S'
+EOF
+
+  # Start CloudWatch Logs agent
+  echo "Starting CloudWatch Logs agent"
+  /usr/bin/aws configure set region $(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+  /usr/bin/aws logs push --config-file /etc/awslogs/awslogs.conf
+fi

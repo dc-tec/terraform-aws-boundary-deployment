@@ -37,6 +37,7 @@ variables {
   private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
   public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
   private_subnet_cidr_blocks = ["10.10.10.0/24"]
+  use_acm = false
 }
 
 run "controller_to_lb_9200" {
