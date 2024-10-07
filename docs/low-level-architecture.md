@@ -1,17 +1,106 @@
 # Low-Level Architecture
 
+## Network Configuration
+
+1. **VPC**: The module uses an existing VPC provided by the user.
+2. **Subnets**:
+   - Public subnets for the ALB
+   - Private subnets for controllers, workers, and RDS
+
+## Load Balancers
+
+1. **Application Load Balancer (ALB)**:
+
+   - Public-facing
+   - Listens on port 443 (HTTPS)
+   - Uses security group: `aws_security_group.boundary_lb`
+   - Target group: `aws_lb_target_group.boundary_lb_controller`
+
+2. **Network Load Balancer (NLB)**:
+   - Internal
+   - Listens on port 9201 (TCP)
+   - Target group: `aws_lb_target_group.boundary_lb_worker`
+
+## Boundary Controllers
+
+1. **Auto Scaling Group**:
+
+   - Uses launch template: `aws_launch_template.boundary_controller`
+   - Deployed in private subnets
+   - Attached to both ALB and NLB target groups
+
+2. **Security Group**: `aws_security_group.boundary_controller`
+
+   - Allows inbound traffic on ports 9200 (from ALB) and 9201 (from NLB)
+   - Allows outbound traffic to RDS and internet
+
+3. **IAM Role**: Attached to the launch template for necessary AWS permissions
+
+## Boundary Workers
+
+1. **Auto Scaling Group**:
+
+   - Uses launch template: `aws_launch_template.boundary_worker`
+   - Deployed in private subnets
+   - Attached to NLB target group
+
+2. **Security Group**: `aws_security_group.boundary_worker`
+
+   - Allows inbound traffic on port 9201 (from NLB)
+   - Allows outbound traffic to targets and internet
+
+3. **IAM Role**: Attached to the launch template for necessary AWS permissions
+
+## Database
+
+1. **RDS PostgreSQL Instance**:
+   - Deployed in private subnets
+   - Security group allows inbound traffic from controller and worker security groups
+
+## Encryption and Authentication
+
+1. **KMS Keys**:
+   - `aws_kms_key.boundary_root`: For root key encryption
+   - `aws_kms_key.boundary_worker_auth`: For worker authentication
+   - `aws_kms_key.boundary_recovery`: For recovery mechanism
+
+## DNS and SSL/TLS (Optional)
+
+1. **Route53**:
+
+   - Creates an A record pointing to the ALB
+
+2. **ACM Certificate**:
+   - Used for SSL/TLS termination at the ALB
+   - DNS validation using Route53
+
+## Logging and Monitoring
+
+1. **CloudWatch Log Groups**: For controller and worker logs (if enabled)
+
+## Resource References
+
+- ALB: Defined in `lb.tf`
+- NLB: Defined in `lb.tf`
+- Controller ASG: Defined in `controllers.tf`
+- Worker ASG: Defined in `workers.tf`
+- RDS: Defined in `database.tf`
+- KMS Keys: Defined in `kms.tf`
+- Route53 Record: Defined in `lb.tf`
+- ACM Certificate: Defined in `tls.tf`
+
 This diagram represents the low-level architecture of the Boundary deployment on AWS using this Terraform module.
 
 ```mermaid
 graph TD
     subgraph "Public Subnets"
         ALB[Application Load Balancer]
-        WorkerASG[Worker Auto Scaling Group]
     end
 
     subgraph "Private Subnets"
         NLB[Network Load Balancer]
         ControllerASG[Controller Auto Scaling Group]
+        WorkerASG[Worker Auto Scaling Group]
         RDS[RDS PostgreSQL]
     end
 
@@ -43,7 +132,7 @@ graph TD
         Certificate[SSL/TLS Certificate]
     end
 
-    ALB -->|forwards to| NLB
+    ALB -->|forwards to| ControllerASG
     NLB -->|forwards to| ControllerASG
     NLB -->|forwards to| WorkerASG
     ControllerASG -->|reads/writes| RDS

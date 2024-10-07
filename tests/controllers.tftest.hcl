@@ -7,6 +7,7 @@ mock_provider "aws" {
   mock_resource "aws_lb_listener" {
     defaults = {
       arn = "arn:aws:alb:::listener"
+      dns_name = "test-alb-1234567890.us-west-2.elb.amazonaws.com"
     }
   }
   mock_resource "aws_lb" {
@@ -53,6 +54,20 @@ run "controller_to_lb_connected" {
     condition = aws_security_group_rule.boundary_controller_allow_9200_lb.source_security_group_id == aws_security_group.boundary_lb.id
 
     error_message = "Controller needs to be able to communicate with the load balancer"
+  }
+}
+
+run "controller_to_alb_9200" {
+  assert {
+    condition = aws_security_group_rule.boundary_controller_allow_9200_alb.from_port == 9200 && aws_security_group_rule.boundary_controller_allow_9200_alb.to_port == 9200
+    error_message = "Expected the from_port and to_port to be 9200 for ALB communication"
+  }
+}
+
+run "controller_to_alb_connected" {
+  assert {
+    condition = aws_security_group_rule.boundary_controller_allow_9200_alb.source_security_group_id == aws_security_group.boundary_alb.id
+    error_message = "Controller needs to be able to communicate with the ALB"
   }
 }
 

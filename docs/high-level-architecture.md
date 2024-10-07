@@ -8,14 +8,14 @@ graph TD
     VPC --> |contains| PrivateSubnets[Private Subnets]
 
     PublicSubnets --> ALB[Application Load Balancer]
+    PublicSubnets --> WorkerASG[Worker Auto Scaling Group]
     PrivateSubnets --> NLB[Network Load Balancer]
     PrivateSubnets --> RDS[RDS PostgreSQL]
     PrivateSubnets --> ControllerASG[Controller Auto Scaling Group]
-    PrivateSubnets --> WorkerASG[Worker Auto Scaling Group]
 
-    ALB --> |forwards to| NLB
+    ALB --> |forwards to| ControllerASG
     NLB --> |forwards to| ControllerASG
-    NLB --> |forwards to| WorkerASG
+    WorkerASG --> |communicates with| ControllerASG
 
     ControllerASG --> |uses| ControllerLT[Controller Launch Template]
     WorkerASG --> |uses| WorkerLT[Worker Launch Template]
@@ -34,4 +34,7 @@ graph TD
 
     IAM[IAM Roles and Policies] --> |attached to| ControllerLT
     IAM --> |attached to| WorkerLT
+
+    CloudWatchLogs[CloudWatch Logs] --> |receives logs from| ControllerASG
+    CloudWatchLogs --> |receives logs from| WorkerASG
 ```

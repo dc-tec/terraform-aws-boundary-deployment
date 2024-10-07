@@ -107,9 +107,9 @@ resource "aws_autoscaling_group" "boundary_controller" {
   max_size         = var.boundary_controller_asg.max_size
   desired_capacity = var.boundary_controller_asg.desired_capacity
 
-  vpc_zone_identifier = var.public_subnet_ids
+  vpc_zone_identifier = var.private_subnet_ids
   target_group_arns = [
-    aws_lb_target_group.boundary_lb.arn,
+    aws_lb_target_group.boundary_lb_controller.arn,
     aws_lb_target_group.boundary_lb_worker.arn
   ]
 

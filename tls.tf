@@ -3,6 +3,7 @@ resource "aws_acm_certificate" "acm_boundary" {
 
   domain_name       = var.boundary_a_record
   validation_method = "DNS"
+
   lifecycle {
     create_before_destroy = true
   }
@@ -54,4 +55,11 @@ resource "tls_self_signed_cert" "boundary_cert" {
     "digital_signature",
     "server_auth",
   ]
+}
+
+resource "aws_acm_certificate" "boundary_self_signed" {
+  private_key      = tls_private_key.boundary_key.private_key_pem
+  certificate_body = tls_self_signed_cert.boundary_cert.cert_pem
+
+  tags = merge({ "Name" = "self-signed-${var.boundary_a_record}" }, var.tags)
 }

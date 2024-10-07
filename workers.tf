@@ -56,7 +56,7 @@ resource "aws_launch_template" "boundary_worker" {
 
   user_data = base64encode(templatefile("${path.module}/templates/configure-worker.sh", {
     KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
-    BOUNDARY_LB_DNS_NAME   = aws_lb.boundary_lb.dns_name
+    BOUNDARY_LB_DNS_NAME   = aws_lb.boundary_nlb.dns_name
     LOGGING_ENABLED        = var.logging_enabled
     CLOUDWATCH_LOG_GROUP   = var.logging_enabled ? aws_cloudwatch_log_group.boundary_worker[0].name : ""
   }))
