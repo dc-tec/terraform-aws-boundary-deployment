@@ -81,7 +81,7 @@ listener "tcp" {
 
 # For health checks for load balancer
 listener "tcp" {
-  # Should be the IP of the NIC that the worker will connect on
+  # Health check listener
   address = "$${LOCAL_IPV4}:9203"
   # The purpose of this listener
   purpose = "ops"
