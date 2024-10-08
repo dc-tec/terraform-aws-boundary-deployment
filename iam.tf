@@ -126,9 +126,9 @@ resource "aws_iam_user_policy" "boundary" {
 EOF
 }
 
-# CloudWatch Config TODO:(check if we need to scope the permissions further on resource)
+# CloudWatch Config TODO:(check if we need to scope the actions for these permissions further)
 resource "aws_iam_role_policy" "cloudwatch_controller" {
-  count = var.logging_enabled ? 1 : 0
+  count = var.use_cloudwatch ? 1 : 0
 
   name = "${var.name}-controller-cloudwatch"
   role = aws_iam_role.boundary_controller.name
@@ -153,7 +153,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "cloudwatch_worker" {
-  count = var.logging_enabled ? 1 : 0
+  count = var.use_cloudwatch ? 1 : 0
 
   name = "${var.name}-worker-cloudwatch"
   role = aws_iam_role.boundary_worker.name
@@ -175,4 +175,116 @@ resource "aws_iam_role_policy" "cloudwatch_worker" {
   }
 }
 EOF
+}
+
+# SSM Config
+resource "aws_iam_role_policy" "ssm_controller" {
+  count = var.use_ssm ? 1 : 0
+
+  name = "${var.name}-controller-ssm"
+  role = aws_iam_role.boundary_controller.name
+
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:UpdateInstanceInformation",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  }
+EOF
+}
+
+resource "aws_iam_role_policy" "ssm_worker" {
+  count = var.use_ssm ? 1 : 0
+
+  name = "${var.name}-worker-ssm"
+  role = aws_iam_role.boundary_worker.name
+
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:UpdateInstanceInformation",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  }
+EOF
+}
+
+resource "aws_iam_group" "boundary_admin" {
+  name = "${var.name}-boundary-admin"
+}
+
+resource "aws_iam_group_membership" "boundary_admin" {
+  name  = "${var.name}-boundary-admin"
+  group = aws_iam_group.boundary_admin.name
+  users = [for user in var.boundary_admin_users : data.aws_iam_user.boundary_admin[user].user_name]
+}
+
+resource "aws_iam_group_policy" "boundary_admin" {
+  count = var.use_ssm ? 1 : 0
+
+  name  = "${var.name}-boundary-admin-ssm"
+  group = aws_iam_group.boundary_admin.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:StartSession",
+          "ssm:DescribeSessions",
+          "ssm:GetConnectionStatus",
+          "ssm:DescribeInstanceProperties",
+          "ec2:DescribeInstances"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:TerminateSession",
+          "ssm:ResumeSession"
+        ]
+        Resource = "arn:aws:ssm:*:*:session/$${aws:username}-*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups"
+        ]
+        Resource = [
+          aws_autoscaling_group.boundary_controller.arn,
+          aws_autoscaling_group.boundary_worker.arn
+        ]
+      }
+    ]
+  })
 }

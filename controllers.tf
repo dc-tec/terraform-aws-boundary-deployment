@@ -73,7 +73,7 @@ resource "aws_launch_template" "boundary_controller" {
   name                   = "${var.name}-controller-lt"
   image_id               = data.aws_ami.main.id
   instance_type          = var.controller_instance_type
-  key_name               = var.enable_ssh ? var.ssh_public_key : null
+  key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_controller.id]
 
 
@@ -81,23 +81,27 @@ resource "aws_launch_template" "boundary_controller" {
     name = aws_iam_instance_profile.boundary_controller.name
   }
 
-  user_data = base64encode(templatefile("${path.module}/templates/configure-controller.sh", {
-    DB_USERNAME            = var.db_username
-    DB_PASSWORD            = random_password.boundary_db_password.result
-    DB_ENDPOINT            = aws_db_instance.boundary_db.endpoint
-    DB_NAME                = aws_db_instance.boundary_db.db_name
-    KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
-    KMS_RECOVERY_KEY_ID    = aws_kms_key.boundary_recovery.id
-    KMS_ROOT_KEY_ID        = aws_kms_key.boundary_root.id
-    SERVER_KEY             = tls_private_key.boundary_key.private_key_pem
-    SERVER_CERT            = tls_self_signed_cert.boundary_cert.cert_pem
-    LOGGING_ENABLED        = var.logging_enabled
-    CLOUDWATCH_LOG_GROUP   = var.logging_enabled ? aws_cloudwatch_log_group.boundary_controller[0].name : ""
+  user_data = base64encode(templatefile("${path.module}/templates/configure-controller.sh.tftpl", {
+    DB_USERNAME               = var.db_username
+    DB_PASSWORD               = random_password.boundary_db_password.result
+    DB_ENDPOINT               = aws_db_instance.boundary_db.endpoint
+    DB_NAME                   = aws_db_instance.boundary_db.db_name
+    KMS_WORKER_AUTH_KEY_ID    = aws_kms_key.boundary_worker_auth.id
+    KMS_RECOVERY_KEY_ID       = aws_kms_key.boundary_recovery.id
+    KMS_ROOT_KEY_ID           = aws_kms_key.boundary_root.id
+    SERVER_KEY                = aws_acm_certificate.boundary_self_signed.private_key
+    SERVER_CERT               = aws_acm_certificate.boundary_self_signed.certificate_body
+    LOGGING_ENABLED           = var.logging_enabled
+    LOGGING_RETENTION_IN_DAYS = var.logging_retention_in_days
+    USE_CLOUDWATCH            = var.use_cloudwatch
+    CLOUDWATCH_LOG_GROUP      = var.use_cloudwatch ? aws_cloudwatch_log_group.boundary_controller[0].name : ""
   }))
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_put_response_hop_limit = 2
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
   }
 }
 

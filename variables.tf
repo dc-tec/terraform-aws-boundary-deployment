@@ -15,7 +15,7 @@ variable "allowed_ssh_inbound_cidr_blocks" {
   default = ["0.0.0.0/0"]
 
   validation {
-    condition     = can([for cidr in var.allowed_ssh_inbound_cidr_blocks : cidr_block(cidr)])
+    condition     = can([for cidr in var.allowed_ssh_inbound_cidr_blocks : cidrhost(cidr, 0)])
     error_message = "All elements in allowed_ssh_inbound_cidr_blocks must be valid CIDR blocks."
   }
 }
@@ -52,7 +52,7 @@ variable "private_subnet_cidr_blocks" {
   description = "List of private subnet CIDR blocks"
 
   validation {
-    condition     = can([for cidr in var.private_subnet_cidr_blocks : cidr_block(cidr)])
+    condition     = can([for cidr in var.private_subnet_cidr_blocks : cidrhost(cidr, 0)])
     error_message = "All elements in private_subnet_cidr_blocks must be valid CIDR blocks."
   }
 }
@@ -219,4 +219,25 @@ variable "logging_retention_in_days" {
     condition     = var.logging_retention_in_days > 0 && var.logging_retention_in_days <= 3653
     error_message = "The logging_retention_in_days must be between 1 and 3653."
   }
+}
+
+variable "use_cloudwatch" {
+  type        = bool
+  description = "Whether to use AWS CloudWatch to log the Boundary Controller"
+
+  default = false
+}
+
+variable "use_ssm" {
+  type        = bool
+  description = "Whether to use AWS SSM to access the Boundary Controllers and Workers"
+
+  default = false
+}
+
+variable "boundary_admin_users" {
+  type        = list(string)
+  description = "The list of Boundary admin users"
+
+  default = ["boundary-admin"]
 }

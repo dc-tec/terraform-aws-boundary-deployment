@@ -54,11 +54,13 @@ resource "aws_launch_template" "boundary_worker" {
     name = aws_iam_instance_profile.boundary_worker.name
   }
 
-  user_data = base64encode(templatefile("${path.module}/templates/configure-worker.sh", {
-    KMS_WORKER_AUTH_KEY_ID = aws_kms_key.boundary_worker_auth.id
-    BOUNDARY_LB_DNS_NAME   = aws_lb.boundary_nlb.dns_name
-    LOGGING_ENABLED        = var.logging_enabled
-    CLOUDWATCH_LOG_GROUP   = var.logging_enabled ? aws_cloudwatch_log_group.boundary_worker[0].name : ""
+  user_data = base64encode(templatefile("${path.module}/templates/configure-worker.sh.tftpl", {
+    KMS_WORKER_AUTH_KEY_ID    = aws_kms_key.boundary_worker_auth.id
+    BOUNDARY_LB_DNS_NAME      = aws_lb.boundary_nlb.dns_name
+    LOGGING_ENABLED           = var.logging_enabled
+    LOGGING_RETENTION_IN_DAYS = var.logging_retention_in_days
+    USE_CLOUDWATCH            = var.use_cloudwatch
+    CLOUDWATCH_LOG_GROUP      = var.use_cloudwatch ? aws_cloudwatch_log_group.boundary_worker[0].name : ""
   }))
 
   metadata_options {
