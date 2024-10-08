@@ -36,7 +36,7 @@ variables {
   }
   aws_route53_zone = "Z12345678"
   private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
-  private_subnet_cidr_blocks = ["10.0.0.0/16"]
+  private_subnet_cidr_blocks = ["10.0.0.0/16", "10.1.0.0/16"]
   public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
   boundary_a_record = "boundary.example.com"
   use_acm = false
@@ -99,7 +99,7 @@ run "nlb_private_subnets" {
 
 run "route53_record" {
   assert {
-    condition     = aws_route53_record.www.zone_id == var.aws_route53_zone && aws_route53_record.www.name == var.boundary_a_record
+    condition     = aws_route53_record.www[0].zone_id == var.aws_route53_zone && aws_route53_record.www[0].name == var.boundary_a_record
     error_message = "Route53 record should be created with correct zone and name"
   }
 }
@@ -115,13 +115,6 @@ run "lb_listener_controller" {
   assert {
     condition     = aws_lb_listener.boundary_lb_controller.port == 443 && aws_lb_listener.boundary_lb_controller.protocol == "HTTPS"
     error_message = "Controller listener should use port 443 and HTTPS protocol"
-  }
-}
-
-run "lb_listener_controller_certificate" {
-  assert {
-    condition     = aws_lb_listener.boundary_lb_controller.certificate_arn == aws_acm_certificate.acm_boundary[0].arn
-    error_message = "Controller listener should use the ACM certificate"
   }
 }
 

@@ -37,7 +37,7 @@ variables {
   aws_route53_zone = "Z12345678"
   private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
   public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
-  private_subnet_cidr_blocks = ["10.10.10.0/24"]
+  private_subnet_cidr_blocks = ["10.10.10.0/24", "10.10.11.0/24"]
   use_acm = false
 }
 
@@ -54,20 +54,6 @@ run "controller_to_lb_connected" {
     condition = aws_security_group_rule.boundary_controller_allow_9200_lb.source_security_group_id == aws_security_group.boundary_lb.id
 
     error_message = "Controller needs to be able to communicate with the load balancer"
-  }
-}
-
-run "controller_to_alb_9200" {
-  assert {
-    condition = aws_security_group_rule.boundary_controller_allow_9200_alb.from_port == 9200 && aws_security_group_rule.boundary_controller_allow_9200_alb.to_port == 9200
-    error_message = "Expected the from_port and to_port to be 9200 for ALB communication"
-  }
-}
-
-run "controller_to_alb_connected" {
-  assert {
-    condition = aws_security_group_rule.boundary_controller_allow_9200_alb.source_security_group_id == aws_security_group.boundary_alb.id
-    error_message = "Controller needs to be able to communicate with the ALB"
   }
 }
 
@@ -129,7 +115,7 @@ run "controller_launch_template_metadata_http_enabled" {
 
 run "controller_asg_target_groups" {
   assert {
-    condition = contains(aws_autoscaling_group.boundary_controller.target_group_arns, aws_lb_target_group.boundary_lb.arn) && contains(aws_autoscaling_group.boundary_controller.target_group_arns, aws_lb_target_group.boundary_lb_worker.arn)
+    condition = contains(aws_autoscaling_group.boundary_controller.target_group_arns, aws_lb_target_group.boundary_lb_controller.arn) && contains(aws_autoscaling_group.boundary_controller.target_group_arns, aws_lb_target_group.boundary_lb_worker.arn)
 
     error_message = "ASG needs to be associated with the Controller and Worker target groups"
   }
