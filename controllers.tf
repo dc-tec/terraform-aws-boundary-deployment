@@ -136,7 +136,7 @@ resource "aws_autoscaling_group" "boundary_controller" {
 }
 
 resource "aws_cloudwatch_log_group" "boundary_controller" {
-  count = var.logging_enabled ? 1 : 0
+  count = var.use_cloudwatch ? 1 : 0
 
   name              = "/aws/ec2/${var.name}-controller"
   retention_in_days = var.logging_retention_in_days

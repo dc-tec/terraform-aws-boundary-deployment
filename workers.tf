@@ -65,7 +65,9 @@ resource "aws_launch_template" "boundary_worker" {
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_put_response_hop_limit = 2
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
   }
 }
 
@@ -96,7 +98,7 @@ resource "aws_autoscaling_group" "boundary_worker" {
 }
 
 resource "aws_cloudwatch_log_group" "boundary_worker" {
-  count = var.logging_enabled ? 1 : 0
+  count = var.use_cloudwatch ? 1 : 0
 
   name              = "/aws/ec2/${var.name}-worker"
   retention_in_days = var.logging_retention_in_days
