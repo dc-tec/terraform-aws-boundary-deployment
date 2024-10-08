@@ -12,9 +12,11 @@ graph TD
     PrivateSubnets --> NLB[Network Load Balancer]
     PrivateSubnets --> RDS[RDS PostgreSQL]
     PrivateSubnets --> ControllerASG[Controller Auto Scaling Group]
+    PrivateSubnets --> SSMEndpoints[SSM VPC Endpoints]
 
     ALB --> |forwards to| ControllerASG
     NLB --> |forwards to| ControllerASG
+    NLB --> |forwards to| WorkerASG
     WorkerASG --> |communicates with| ControllerASG
 
     ControllerASG --> |uses| ControllerLT[Controller Launch Template]
@@ -37,4 +39,7 @@ graph TD
 
     CloudWatchLogs[CloudWatch Logs] --> |receives logs from| ControllerASG
     CloudWatchLogs --> |receives logs from| WorkerASG
+
+    SSMEndpoints --> |used by| ControllerASG
+    SSMEndpoints --> |used by| WorkerASG
 ```

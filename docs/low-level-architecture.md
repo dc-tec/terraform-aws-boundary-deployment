@@ -74,6 +74,12 @@
    - Used for SSL/TLS termination at the ALB
    - DNS validation using Route53
 
+## System Manager Session Manager
+
+1. **VPC Endpoints**:
+   - Creates VPC endpoints for SSM and EC2 messages
+   - Security group allows inbound traffic from controller and worker security groups
+
 ## Logging and Monitoring
 
 1. **CloudWatch Log Groups**: For controller and worker logs (if enabled)
@@ -88,6 +94,7 @@
 - KMS Keys: Defined in `kms.tf`
 - Route53 Record: Defined in `lb.tf`
 - ACM Certificate: Defined in `tls.tf`
+- SSM Endpoints: Defined in `ssm.tf`
 
 This diagram represents the low-level architecture of the Boundary deployment on AWS using this Terraform module.
 
@@ -95,13 +102,14 @@ This diagram represents the low-level architecture of the Boundary deployment on
 graph TD
     subgraph "Public Subnets"
         ALB[Application Load Balancer]
+        WorkerASG[Worker Auto Scaling Group]
     end
 
     subgraph "Private Subnets"
         NLB[Network Load Balancer]
         ControllerASG[Controller Auto Scaling Group]
-        WorkerASG[Worker Auto Scaling Group]
         RDS[RDS PostgreSQL]
+        SSMEndpoints[SSM VPC Endpoints]
     end
 
     subgraph "Security Groups"
@@ -159,4 +167,8 @@ graph TD
     CloudWatchLogs[CloudWatch Logs] -->|receives logs from| ControllerASG
     CloudWatchLogs -->|receives logs from| WorkerASG
 
+    ControllerASG -->|uses| SSMEndpoints
+    WorkerASG -->|uses| SSMEndpoints
+    SSMEndpoints -->|associated with| ControllerSG
+    SSMEndpoints -->|associated with| WorkerSG
 ```
