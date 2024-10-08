@@ -124,6 +124,11 @@ graph TD
         ControllerRole[Controller IAM Role]
         WorkerRole[Worker IAM Role]
         BoundaryUser[Boundary IAM User]
+        BoundaryAdminGroup[Boundary Admin IAM Group]
+        SSMControllerPolicy[SSM Controller Policy]
+        SSMWorkerPolicy[SSM Worker Policy]
+        CloudWatchControllerPolicy[CloudWatch Controller Policy]
+        CloudWatchWorkerPolicy[CloudWatch Worker Policy]
     end
 
     subgraph "KMS"
@@ -155,6 +160,14 @@ graph TD
     ControllerASG -->|assumes| ControllerRole
     WorkerASG -->|assumes| WorkerRole
     BoundaryUser -->|used by| ControllerASG
+
+    ControllerRole -->|has| SSMControllerPolicy
+    WorkerRole -->|has| SSMWorkerPolicy
+    ControllerRole -->|has| CloudWatchControllerPolicy
+    WorkerRole -->|has| CloudWatchWorkerPolicy
+
+    BoundaryAdminGroup -->|manages| ControllerASG
+    BoundaryAdminGroup -->|manages| WorkerASG
 
     ControllerASG -->|uses| RootKey
     ControllerASG -->|uses| WorkerAuthKey
