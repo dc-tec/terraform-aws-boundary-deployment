@@ -82,7 +82,7 @@ resource "aws_lb_listener" "boundary_lb_controller" {
   port              = 443
   protocol          = "HTTPS"
 
-  certificate_arn = var.use_acm ? aws_acm_certificate.acm_boundary[0].arn : aws_acm_certificate.boundary_self_signed.arn
+  certificate_arn = var.use_acm ? aws_acm_certificate.acm_boundary[0].arn : aws_acm_certificate.boundary_api_cert.arn
 
   default_action {
     type             = "forward"

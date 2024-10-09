@@ -48,6 +48,28 @@ resource "aws_iam_role_policy" "boundary" {
 EOF
 }
 
+resource "aws_iam_role_policy" "boundary_controller_secretsmanager" {
+  name = "${var.name}-controller-secretsmanager"
+  role = aws_iam_role.boundary_controller.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": [
+      "secretsmanager:GetSecretValue"
+    ],
+    "Resource": [
+      "${aws_secretsmanager_secret.boundary_api_cert.arn}",
+      "${aws_secretsmanager_secret.boundary_api_cert_key.arn}",
+      "${aws_secretsmanager_secret.boundary_db_secret.arn}"
+    ]
+  }
+}
+EOF
+}
+
 # Worker IAM
 resource "aws_iam_role" "boundary_worker" {
   name = "${var.name}-worker"

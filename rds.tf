@@ -34,6 +34,22 @@ resource "aws_security_group_rule" "allow_egress_boundary_db" {
   security_group_id = aws_security_group.boundary_db.id
 }
 
+resource "aws_secretsmanager_secret" "boundary_db_secret" {
+  name = "${var.name}-db-secret"
+
+  tags = merge({ "Name" = "${var.name}-db-secret" }, var.tags)
+}
+
+resource "aws_secretsmanager_secret_version" "boundary_db_secret" {
+  secret_id = aws_secretsmanager_secret.boundary_db_secret.id
+  secret_string = jsonencode({
+    username = var.db_username
+    password = random_password.boundary_db_password.result
+    endpoint = aws_db_instance.boundary_db.endpoint
+    dbname   = aws_db_instance.boundary_db.db_name
+  })
+}
+
 resource "aws_db_instance" "boundary_db" {
   identifier = "${var.name}-db"
 

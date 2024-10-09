@@ -35,13 +35,13 @@ resource "aws_acm_certificate_validation" "acm_validation" {
   validation_record_fqdns = [for record in aws_route53_record.acm_dns_validation : record.fqdn]
 }
 
-resource "tls_private_key" "boundary_key" {
+resource "tls_private_key" "boundary_api_cert_key" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-resource "tls_self_signed_cert" "boundary_cert" {
-  private_key_pem   = tls_private_key.boundary_key.private_key_pem
+resource "tls_self_signed_cert" "boundary_api_cert" {
+  private_key_pem   = tls_private_key.boundary_api_cert_key.private_key_pem
   is_ca_certificate = true
 
   subject {
@@ -57,9 +57,31 @@ resource "tls_self_signed_cert" "boundary_cert" {
   ]
 }
 
-resource "aws_acm_certificate" "boundary_self_signed" {
-  private_key      = tls_private_key.boundary_key.private_key_pem
-  certificate_body = tls_self_signed_cert.boundary_cert.cert_pem
+resource "aws_acm_certificate" "boundary_api_cert" {
+  private_key      = tls_private_key.boundary_api_cert_key.private_key_pem
+  certificate_body = tls_self_signed_cert.boundary_api_cert.cert_pem
 
-  tags = merge({ "Name" = "self-signed-${var.boundary_a_record}" }, var.tags)
+  tags = merge({ "Name" = "${var.boundary_a_record}-api-cert" }, var.tags)
+}
+
+resource "aws_secretsmanager_secret" "boundary_api_cert_key" {
+  name = "${var.name}-api-cert-key"
+
+  tags = merge({ "Name" = "${var.name}-api-cert-key" }, var.tags)
+}
+
+resource "aws_secretsmanager_secret_version" "boundary_self_signed_key" {
+  secret_id     = aws_secretsmanager_secret.boundary_api_cert_key.id
+  secret_string = tls_private_key.boundary_api_cert_key.private_key_pem
+}
+
+resource "aws_secretsmanager_secret" "boundary_api_cert" {
+  name = "${var.name}-api-cert"
+
+  tags = merge({ "Name" = "${var.name}-api-cert" }, var.tags)
+}
+
+resource "aws_secretsmanager_secret_version" "boundary_api_cert" {
+  secret_id     = aws_secretsmanager_secret.boundary_api_cert.id
+  secret_string = tls_self_signed_cert.boundary_api_cert.cert_pem
 }
