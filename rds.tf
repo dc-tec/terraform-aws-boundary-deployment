@@ -38,19 +38,29 @@ resource "aws_db_instance" "boundary_db" {
   identifier = "${var.name}-db"
 
   engine         = "postgres"
-  engine_version = "16.4"
+  engine_version = var.db_engine_version
 
   instance_class    = var.db_instance_class
   db_name           = "boundary"
-  allocated_storage = 20
+  allocated_storage = var.db_allocated_storage
+
+  backup_window           = var.db_backup_enabled ? var.db_backup_window : null
+  backup_retention_period = var.db_backup_enabled ? var.db_backup_retention_period : null
+
+  multi_az = var.db_multi_az
+
+  blue_green_update {
+    enabled = true
+  }
 
   username = var.db_username
   password = random_password.boundary_db_password.result
 
   db_subnet_group_name   = aws_db_subnet_group.boundary_db.name
   vpc_security_group_ids = [aws_security_group.boundary_db.id]
-  skip_final_snapshot    = true
-  storage_type           = "gp2"
+
+  skip_final_snapshot = true
+  storage_type        = "gp2"
 
   tags = merge({ "Name" = "${var.name}-db" }, var.tags)
 }

@@ -106,23 +106,31 @@ No modules.
 | <a name="input_boundary_controller_asg"></a> [boundary\_controller\_asg](#input\_boundary\_controller\_asg) | The configuration for the Boundary Controller Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 3,<br>  "max_size": 6,<br>  "min_size": 3<br>}</pre> | no |
 | <a name="input_boundary_worker_asg"></a> [boundary\_worker\_asg](#input\_boundary\_worker\_asg) | The configuration for the Boundary Worker Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 1,<br>  "max_size": 10,<br>  "min_size": 1<br>}</pre> | no |
 | <a name="input_controller_instance_type"></a> [controller\_instance\_type](#input\_controller\_instance\_type) | The instance type to use for the Boundary Controller | `string` | `"t3.micro"` | no |
+| <a name="input_controller_instance_volume_size"></a> [controller\_instance\_volume\_size](#input\_controller\_instance\_volume\_size) | The size of the EBS volume to use for the Boundary Controller | `number` | `50` | no |
+| <a name="input_db_allocated_storage"></a> [db\_allocated\_storage](#input\_db\_allocated\_storage) | The amount of storage to allocate for the Boundary Database | `number` | `20` | no |
+| <a name="input_db_backup_enabled"></a> [db\_backup\_enabled](#input\_db\_backup\_enabled) | Whether to enable backups for the Boundary Database | `bool` | `true` | no |
+| <a name="input_db_backup_retention_period"></a> [db\_backup\_retention\_period](#input\_db\_backup\_retention\_period) | The number of days to retain backups for | `number` | `7` | no |
+| <a name="input_db_backup_window"></a> [db\_backup\_window](#input\_db\_backup\_window) | The backup window for the Boundary Database | `string` | `"03:00-06:00"` | no |
+| <a name="input_db_engine_version"></a> [db\_engine\_version](#input\_db\_engine\_version) | The engine version to use for the Boundary Database (must be version 13.0 or higher) | `string` | `"16.4"` | no |
 | <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | The instance class to use for the Boundary Database | `string` | `"db.t3.micro"` | no |
+| <a name="input_db_multi_az"></a> [db\_multi\_az](#input\_db\_multi\_az) | Whether to enable Multi-AZ for the Boundary Database | `bool` | `false` | no |
 | <a name="input_db_username"></a> [db\_username](#input\_db\_username) | The username to use for the Boundary Database user | `string` | `"postgres"` | no |
 | <a name="input_enable_ssh"></a> [enable\_ssh](#input\_enable\_ssh) | Whether to enable SSH access to the Controllers and Workers | `bool` | `false` | no |
 | <a name="input_logging_enabled"></a> [logging\_enabled](#input\_logging\_enabled) | Whether to enable logging for the Boundary Controller | `bool` | `false` | no |
 | <a name="input_logging_retention_in_days"></a> [logging\_retention\_in\_days](#input\_logging\_retention\_in\_days) | The number of days to retain logs for | `number` | `30` | no |
-| <a name="input_name"></a> [name](#input\_name) | The name of the deployment | `string` | n/a | yes |
-| <a name="input_private_subnet_cidr_blocks"></a> [private\_subnet\_cidr\_blocks](#input\_private\_subnet\_cidr\_blocks) | List of private subnet CIDR blocks | `list(string)` | n/a | yes |
-| <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | List of private subnet IDs | `list(string)` | n/a | yes |
-| <a name="input_public_subnet_ids"></a> [public\_subnet\_ids](#input\_public\_subnet\_ids) | List of public subnet IDs | `list(string)` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | The name of the deployment | `string` | `"boundary"` | no |
+| <a name="input_private_subnet_cidr_blocks"></a> [private\_subnet\_cidr\_blocks](#input\_private\_subnet\_cidr\_blocks) | List of private subnet CIDR blocks | `list(string)` | <pre>[<br>  "10.0.1.0/24",<br>  "10.0.2.0/24"<br>]</pre> | no |
+| <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | List of private subnet IDs | `list(string)` | <pre>[<br>  "subnet-0123456789abcdefg",<br>  "subnet-0123456789abcdefg"<br>]</pre> | no |
+| <a name="input_public_subnet_ids"></a> [public\_subnet\_ids](#input\_public\_subnet\_ids) | List of public subnet IDs | `list(string)` | <pre>[<br>  "subnet-0123456789abcdefg",<br>  "subnet-0123456789abcdefg"<br>]</pre> | no |
 | <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | The public key to use for SSH access | `string` | `null` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | <pre>{<br>  "Environment": "Development",<br>  "Project": "Boundary"<br>}</pre> | no |
 | <a name="input_use_acm"></a> [use\_acm](#input\_use\_acm) | Whether to use ACM to generate a certificate or generate a self-signed certificate for the Boundary Controller | `bool` | `true` | no |
 | <a name="input_use_cloudwatch"></a> [use\_cloudwatch](#input\_use\_cloudwatch) | Whether to use AWS CloudWatch to log the Boundary Controller | `bool` | `false` | no |
 | <a name="input_use_route53"></a> [use\_route53](#input\_use\_route53) | Use Route53 to create a DNS record | `bool` | `true` | no |
 | <a name="input_use_ssm"></a> [use\_ssm](#input\_use\_ssm) | Whether to use AWS SSM to access the Boundary Controllers and Workers | `bool` | `false` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC | `string` | n/a | yes |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC | `string` | `"vpc-0123456789abcdefg"` | no |
 | <a name="input_worker_instance_type"></a> [worker\_instance\_type](#input\_worker\_instance\_type) | The instance type to use for the Boundary Workers | `string` | `"t3.micro"` | no |
+| <a name="input_worker_instance_volume_size"></a> [worker\_instance\_volume\_size](#input\_worker\_instance\_volume\_size) | The size of the EBS volume to use for the Boundary Workers | `number` | `50` | no |
 
 ## Outputs
 

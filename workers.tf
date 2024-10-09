@@ -50,6 +50,14 @@ resource "aws_launch_template" "boundary_worker" {
   key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_worker.id]
 
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      volume_size = var.worker_instance_volume_size
+    }
+  }
+
   iam_instance_profile {
     name = aws_iam_instance_profile.boundary_worker.name
   }
