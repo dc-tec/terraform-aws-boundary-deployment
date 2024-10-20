@@ -30,16 +30,16 @@ mock_provider "aws" {
 
 variables {
   vpc_id = "vpc-12345678"
-  name = "boundary"
+  name   = "boundary"
   tags = {
     "Terraform-Test" = "true"
   }
-  aws_route53_zone = "Z12345678"
-  private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
+  aws_route53_zone           = "Z12345678"
+  private_subnet_ids         = ["subnet-12345678", "subnet-23456789"]
   private_subnet_cidr_blocks = ["10.0.0.0/16", "10.1.0.0/16"]
-  public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
-  boundary_a_record = "boundary.example.com"
-  use_acm = false
+  public_subnet_ids          = ["subnet-34567890", "subnet-45678901"]
+  boundary_a_record          = "boundary.example.com"
+  use_acm                    = false
 }
 
 run "lb_security_group" {

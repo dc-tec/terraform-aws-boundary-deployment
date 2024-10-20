@@ -6,7 +6,7 @@ mock_provider "aws" {
   }
   mock_resource "aws_lb_listener" {
     defaults = {
-      arn = "arn:aws:alb:::listener"
+      arn      = "arn:aws:alb:::listener"
       dns_name = "test-alb-1234567890.us-west-2.elb.amazonaws.com"
     }
   }
@@ -29,16 +29,16 @@ mock_provider "aws" {
 
 variables {
   vpc_id = "vpc-12345678"
-  name = "boundary"
+  name   = "boundary"
   tags = {
     "Terraform-Test" = "true"
   }
-  ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2k4t5N5G4d1Zqg2t+I0j9V3nLb7R"
-  aws_route53_zone = "Z12345678"
-  private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
-  public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
+  ssh_public_key             = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2k4t5N5G4d1Zqg2t+I0j9V3nLb7R"
+  aws_route53_zone           = "Z12345678"
+  private_subnet_ids         = ["subnet-12345678", "subnet-23456789"]
+  public_subnet_ids          = ["subnet-34567890", "subnet-45678901"]
   private_subnet_cidr_blocks = ["10.10.10.0/24", "10.10.11.0/24"]
-  use_acm = false
+  use_acm                    = false
 }
 
 run "controller_to_lb_9200" {

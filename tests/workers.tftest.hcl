@@ -28,16 +28,16 @@ mock_provider "aws" {
 
 variables {
   vpc_id = "vpc-12345678"
-  name = "boundary"
+  name   = "boundary"
   tags = {
     "Terraform-Test" = "true"
   }
-  ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2k4t5N5G4d1Zqg2t+I0j9V3nLb7R"
-  aws_route53_zone = "Z12345678"
-  private_subnet_ids = ["subnet-12345678", "subnet-23456789"]
-  public_subnet_ids = ["subnet-34567890", "subnet-45678901"]
+  ssh_public_key             = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC2k4t5N5G4d1Zqg2t+I0j9V3nLb7R"
+  aws_route53_zone           = "Z12345678"
+  private_subnet_ids         = ["subnet-12345678", "subnet-23456789"]
+  public_subnet_ids          = ["subnet-34567890", "subnet-45678901"]
   private_subnet_cidr_blocks = ["10.10.10.0/24"]
-  use_acm = false
+  use_acm                    = false
 }
 
 run "worker_9202_self" {
@@ -58,7 +58,7 @@ run "worker_to_users_9202" {
 
 run "worker_launch_template_security_group" {
   assert {
-    condition = contains(aws_launch_template.boundary_worker.vpc_security_group_ids,aws_security_group.boundary_worker.id)
+    condition = contains(aws_launch_template.boundary_worker.vpc_security_group_ids, aws_security_group.boundary_worker.id)
 
     error_message = "Expected the launch template to use the worker security group"
   }
