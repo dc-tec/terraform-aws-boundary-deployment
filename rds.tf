@@ -30,7 +30,7 @@ resource "aws_security_group_rule" "allow_egress_boundary_db" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = var.private_subnet_cidr_blocks
+  cidr_blocks       = var.create_vpc == true ? local.private_subnets : var.private_subnet_cidr_blocks
   security_group_id = aws_security_group.boundary_db.id
 }
 

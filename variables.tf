@@ -34,6 +34,30 @@ variable "vpc_id" {
   }
 }
 
+variable "create_vpc" {
+  type        = bool
+  description = "Whether to create a new VPC"
+
+  default = true
+
+  validation {
+    condition     = var.vpc_id == "vpc-0123456789abcdefg" ? var.create_vpc : !var.create_vpc
+    error_message = "The vpc_id and create_vpc variables must be mutually exclusive."
+  }
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "The CIDR block for the VPC"
+
+  default = "10.0.0.0/16"
+
+  validation {
+    condition     = can(cidrhost(var.vpc_cidr_block, 0))
+    error_message = "The vpc_cidr_block must be a valid CIDR block."
+  }
+}
+
 variable "private_subnet_ids" {
   type        = list(string)
   description = "List of private subnet IDs"
@@ -68,6 +92,20 @@ variable "private_subnet_cidr_blocks" {
     condition     = can([for cidr in var.private_subnet_cidr_blocks : cidrhost(cidr, 0)])
     error_message = "All elements in private_subnet_cidr_blocks must be valid CIDR blocks."
   }
+}
+
+variable "public_subnet_count" {
+  type        = number
+  description = "The number of public subnets to create"
+
+  default = 3
+}
+
+variable "private_subnet_count" {
+  type        = number
+  description = "The number of private subnets to create"
+
+  default = 3
 }
 
 # Database configuration
@@ -252,12 +290,14 @@ variable "use_route53" {
   type        = bool
   description = "Use Route53 to create a DNS record"
 
-  default = true
+  default = false
 }
 
 variable "aws_route53_zone" {
   type        = string
   description = "The Route 53 zone to create the A record in"
+
+  default = "Z12345678901234567890"
 
   validation {
     condition     = can(regex("^Z[A-Z0-9]+$", var.aws_route53_zone))
@@ -281,7 +321,7 @@ variable "use_acm" {
   type        = bool
   description = "Whether to use ACM to generate a certificate or generate a self-signed certificate for the Boundary Controller"
 
-  default = true
+  default = false
 }
 
 # Logging and monitoring configuration

@@ -85,7 +85,7 @@ resource "aws_autoscaling_group" "boundary_worker" {
   max_size         = var.boundary_worker_asg.max_size
   desired_capacity = var.boundary_worker_asg.desired_capacity
 
-  vpc_zone_identifier = var.public_subnet_ids
+  vpc_zone_identifier = var.create_vpc == true ? aws_subnet.public[*].id : var.public_subnet_ids
 
   launch_template {
     id      = aws_launch_template.boundary_worker.id

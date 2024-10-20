@@ -10,6 +10,10 @@ data "aws_ami" "main" {
 
 data "aws_region" "current" {}
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 data "aws_iam_user" "boundary_admin" {
   for_each  = toset(var.boundary_admin_users)
   user_name = each.value

@@ -38,7 +38,7 @@ resource "aws_lb" "boundary_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.boundary_lb.id]
-  subnets            = var.public_subnet_ids
+  subnets            = var.create_vpc == true ? aws_subnet.public[*].id : var.public_subnet_ids
   idle_timeout       = 60
 
   tags = merge({ "Name" = "${var.name}-lb" }, var.tags)
@@ -49,7 +49,7 @@ resource "aws_lb" "boundary_nlb" {
   internal           = true
   load_balancer_type = "network"
   security_groups    = [aws_security_group.boundary_lb.id]
-  subnets            = var.private_subnet_ids
+  subnets            = var.create_vpc == true ? aws_subnet.private[*].id : var.private_subnet_ids
   idle_timeout       = 60
 
   tags = merge({ "Name" = "${var.name}-nlb" }, var.tags)
