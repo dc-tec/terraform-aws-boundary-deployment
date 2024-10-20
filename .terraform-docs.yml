@@ -1,0 +1,13 @@
+formatter: markdown table
+
+header-from: docs/HEADER.md
+
+recursive:
+  enabled: false
+
+output:
+  file: README.md
+  mode: replace
+
+settings:
+  anchor: true

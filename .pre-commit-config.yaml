@@ -53,4 +53,4 @@ repos:
     rev: "v0.18.0"
     hooks:
       - id: terraform-docs-go
-        args: ["markdown", "table", "--output-file", "MODULE_DOCS.md", "."]
+        args: ["."]
