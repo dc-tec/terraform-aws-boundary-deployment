@@ -45,42 +45,38 @@ variables {
   public_subnet_ids          = ["subnet-34567890", "subnet-45678901"]
   private_subnet_cidr_blocks = ["10.10.10.0/24", "10.10.11.0/24"]
   use_acm                    = false
-  use_ssm                    = true
-  use_cloudwatch             = true
-  logging_enabled            = true
-  boundary_admin_users = [
-    "admin1",
-    "admin2"
-  ]
 }
 
-run "verify_cloudwatch_policies" {
-  assert {
-    condition     = length(aws_iam_role_policy.cloudwatch_controller) == 1
-    error_message = "CloudWatch policy for controller should be created when use_cloudwatch is true"
-  }
 
+run "kms_keys_creation" {
   assert {
-    condition     = length(aws_iam_role_policy.cloudwatch_worker) == 1
-    error_message = "CloudWatch policy for worker should be created when use_cloudwatch is true"
+    condition = (
+      length(aws_kms_key.boundary_root) >= 1 &&
+      length(aws_kms_key.boundary_worker_auth) >= 1 &&
+      length(aws_kms_key.boundary_recovery) >= 1
+    )
+    error_message = "KMS keys should be created for root, worker auth, and recovery"
   }
 }
 
-run "verify_ssm_policies" {
+run "kms_key_aliases" {
   assert {
-    condition     = length(aws_iam_role_policy.ssm_controller) == 1
-    error_message = "SSM policy for controller should be created when use_ssm is true"
-  }
-
-  assert {
-    condition     = length(aws_iam_role_policy.ssm_worker) == 1
-    error_message = "SSM policy for worker should be created when use_ssm is true"
+    condition = (
+      aws_kms_alias.boundary_root.name == "alias/boundary_root" &&
+      aws_kms_alias.boundary_worker_auth.name == "alias/boundary_worker_auth" &&
+      aws_kms_alias.boundary_recovery.name == "alias/boundary_recovery"
+    )
+    error_message = "KMS key aliases should be created with correct names"
   }
 }
 
-run "verify_boundary_admin_group_policy" {
+run "kms_key_descriptions" {
   assert {
-    condition     = length(aws_iam_group_policy.boundary_admin) == 1
-    error_message = "Boundary admin group policy should be created when use_ssm is true"
+    condition = (
+      aws_kms_key.boundary_root.description == "Boundary root key" &&
+      aws_kms_key.boundary_worker_auth.description == "Boundary worker authentication key" &&
+      aws_kms_key.boundary_recovery.description == "Boundary recovery key"
+    )
+    error_message = "KMS keys should have correct descriptions"
   }
 }

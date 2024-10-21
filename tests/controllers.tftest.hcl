@@ -28,8 +28,9 @@ mock_provider "aws" {
 }
 
 variables {
-  vpc_id = "vpc-12345678"
-  name   = "boundary"
+  vpc_id     = "vpc-12345678"
+  create_vpc = false
+  name       = "boundary"
   tags = {
     "Terraform-Test" = "true"
   }
