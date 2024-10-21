@@ -8,7 +8,7 @@ UUID=$(head /dev/urandom | tr -dc a-z0-9 | head -c 4)
 echo "Installing Packages"
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-apt update -y && apt install -y boundary jq
+apt update -y && apt install -y boundary jq unzip
 
 # Install AWS CLI
 echo "Installing AWS CLI"
@@ -31,8 +31,8 @@ mkdir -p /etc/boundary.d/tls
 
 # Retrieve the API certificate and key from AWS Secrets Manager
 echo "Retrieving API certificate and key from AWS Secrets Manager"
-API_CERT=$(aws secretsmanager get-secret-value --secret-id ${API_CERT} --query SecretString --output text)
-API_CERT_KEY=$(aws secretsmanager get-secret-value --secret-id ${API_CERT_KEY} --query SecretString --output text)
+API_CERT=$(aws secretsmanager get-secret-value --secret-id ${API_CERT_SECRET_NAME} --query SecretString --output text)
+API_CERT_KEY=$(aws secretsmanager get-secret-value --secret-id ${API_CERT_KEY_SECRET_NAME} --query SecretString --output text)
 
 # Write the server key and certificate to the appropriate files
 echo "Writing Certificate data"
@@ -46,11 +46,11 @@ EOF
 
 # Retrieve the DB secret from AWS Secrets Manager
 echo "Retrieving DB secret from AWS Secrets Manager"
-DB_SECRET=$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET} --query SecretString --output text)
-DB_USERNAME=$(echo ${DB_SECRET} | jq -r '.username')
-DB_PASSWORD=$(echo ${DB_SECRET} | jq -r '.password')
-DB_ENDPOINT=$(echo ${DB_SECRET} | jq -r '.endpoint')
-DB_NAME=$(echo ${DB_SECRET} | jq -r '.dbname')
+DB_SECRET=$(aws secretsmanager get-secret-value --secret-id ${DB_SECRET_NAME} --query SecretString --output text)
+DB_USERNAME=$(echo $DB_SECRET | jq -r '.username')
+DB_PASSWORD=$(echo $DB_SECRET | jq -r '.password')
+DB_ENDPOINT=$(echo $DB_SECRET | jq -r '.endpoint')
+DB_NAME=$(echo $DB_SECRET | jq -r '.dbname')
 
 # URL-encode the password
 echo "Encoding DB Password"
