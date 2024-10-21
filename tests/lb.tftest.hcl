@@ -41,6 +41,7 @@ variables {
   public_subnet_ids          = ["subnet-34567890", "subnet-45678901"]
   boundary_a_record          = "boundary.example.com"
   use_acm                    = false
+  use_route53                = true
 }
 
 run "lb_security_group" {
