@@ -5,15 +5,18 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: ["1.4.7", "1.5.7", "1.6.6", "1.7.4", "1.8.2", "1.9.7"]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.9.7"
+          terraform_version: ${{ matrix.terraform_version }}
 
       - name: Run Terraform Test
         run: terraform test
