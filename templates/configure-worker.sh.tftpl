@@ -41,6 +41,16 @@ worker {
   ]
 }
 
+# For health checks for load balancer
+listener "tcp" {
+  # The address of the health check listener
+  address = "$${LOCAL_IPV4}:9203"
+  # The purpose of this listener
+  purpose = "ops"
+
+  tls_disable = false
+}
+
 %{ if LOGGING_ENABLED ~}
 # Event sinks configuration
 events {
