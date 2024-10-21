@@ -75,6 +75,15 @@ resource "aws_lb_target_group" "boundary_lb_controller" {
   protocol             = "HTTPS"
   vpc_id               = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   deregistration_delay = 30
+
+  health_check {
+    matcher  = "200"
+    path     = "/health"
+    port     = "9203"
+    protocol = "HTTPS"
+    enabled  = true
+    timeout  = 2
+  }
 }
 
 resource "aws_lb_listener" "boundary_lb_controller" {
@@ -96,6 +105,15 @@ resource "aws_lb_target_group" "boundary_lb_worker" {
   protocol             = "TCP"
   vpc_id               = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   deregistration_delay = 30
+
+  health_check {
+    matcher  = "200"
+    path     = "/health"
+    port     = "9203"
+    protocol = "TCP"
+    enabled  = true
+    timeout  = 2
+  }
 }
 
 resource "aws_lb_listener" "boundary_lb_worker" {
