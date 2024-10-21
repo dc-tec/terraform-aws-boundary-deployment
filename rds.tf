@@ -6,13 +6,13 @@ resource "random_password" "boundary_db_password" {
 
 resource "aws_db_subnet_group" "boundary_db" {
   name       = "${var.name}-db-subnet-group"
-  subnet_ids = var.private_subnet_ids
+  subnet_ids = var.create_vpc == true ? aws_subnet.private[*].id : var.private_subnet_ids
 
   tags = merge({ "Name" = "${var.name}-db-subnet-group" }, var.tags)
 }
 
 resource "aws_security_group" "boundary_db" {
-  vpc_id = var.vpc_id
+  vpc_id = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   name   = "${var.name}-db-sg"
 }
 

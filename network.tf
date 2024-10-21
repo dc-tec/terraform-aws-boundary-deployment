@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_eip" "main" {
-  count = var.create_vpc == true ? 1 : 0
+  count = var.create_vpc == true ? length(aws_subnet.public) : 0
 
   domain = "vpc"
 
@@ -28,9 +28,9 @@ resource "aws_eip" "main" {
 }
 
 resource "aws_nat_gateway" "main" {
-  count = var.create_vpc == true ? 1 : 0
+  count = var.create_vpc == true ? length(aws_subnet.public) : 0
 
-  allocation_id = aws_eip.main[0].id
+  allocation_id = aws_eip.main[count.index].id
   subnet_id     = aws_subnet.public[0].id
 
   tags = merge({ "Name" = "${var.name}-nat" }, var.tags)
@@ -47,7 +47,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table" "private" {
-  count = var.create_vpc == true ? 1 : 0
+  count = var.create_vpc == true ? length(aws_subnet.private) : 0
 
   vpc_id = aws_vpc.main[0].id
 

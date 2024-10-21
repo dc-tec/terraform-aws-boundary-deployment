@@ -1,5 +1,5 @@
 resource "aws_security_group" "boundary_worker" {
-  vpc_id = var.vpc_id
+  vpc_id = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   name   = "${var.name}-worker-sg"
 
   tags = var.tags

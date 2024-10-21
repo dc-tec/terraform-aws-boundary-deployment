@@ -1,5 +1,5 @@
 resource "aws_security_group" "boundary_lb" {
-  vpc_id = var.vpc_id
+  vpc_id = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   name   = "${var.name}-lb-sg"
 }
 
@@ -73,7 +73,7 @@ resource "aws_lb_target_group" "boundary_lb_controller" {
   name_prefix          = "ctrl-"
   port                 = 9200
   protocol             = "HTTPS"
-  vpc_id               = var.vpc_id
+  vpc_id               = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   deregistration_delay = 30
 }
 
@@ -94,7 +94,7 @@ resource "aws_lb_target_group" "boundary_lb_worker" {
   name_prefix          = "wrkr-"
   port                 = 9201
   protocol             = "TCP"
-  vpc_id               = var.vpc_id
+  vpc_id               = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   deregistration_delay = 30
 }
 

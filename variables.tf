@@ -42,7 +42,7 @@ variable "create_vpc" {
 
   validation {
     condition     = var.vpc_id == "vpc-0123456789abcdefg" ? var.create_vpc : !var.create_vpc
-    error_message = "The vpc_id and create_vpc variables must be mutually exclusive."
+    error_message = "The vpc_id and create_vpc variables must be mutually exclusive and var.vpc_id must be a valid VPC ID."
   }
 }
 

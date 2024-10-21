@@ -1,5 +1,5 @@
 resource "aws_security_group" "boundary_controller" {
-  vpc_id = var.vpc_id
+  vpc_id = var.create_vpc == true ? aws_vpc.main[0].id : var.vpc_id
   name   = "${var.name}-controller-sg"
   tags   = var.tags
 }
@@ -90,7 +90,7 @@ resource "aws_launch_template" "boundary_controller" {
   }
 
   user_data = base64encode(templatefile("${path.module}/templates/configure-controller.sh.tftpl", {
-    DB_SECRET                 = aws_secretsmanager_secret.boundary_db_secret.name
+    DB_SECRET_NAME            = aws_secretsmanager_secret.boundary_db_secret.name
     DB_USERNAME               = var.db_username
     DB_PASSWORD               = random_password.boundary_db_password.result
     DB_ENDPOINT               = aws_db_instance.boundary_db.endpoint
@@ -98,8 +98,8 @@ resource "aws_launch_template" "boundary_controller" {
     KMS_WORKER_AUTH_KEY_ID    = aws_kms_key.boundary_worker_auth.id
     KMS_RECOVERY_KEY_ID       = aws_kms_key.boundary_recovery.id
     KMS_ROOT_KEY_ID           = aws_kms_key.boundary_root.id
-    API_CERT_KEY              = aws_secretsmanager_secret.boundary_api_cert_key.name
-    API_CERT                  = aws_secretsmanager_secret.boundary_api_cert.name
+    API_CERT_KEY_SECRET_NAME  = aws_secretsmanager_secret.boundary_api_cert_key.name
+    API_CERT_SECRET_NAME      = aws_secretsmanager_secret.boundary_api_cert.name
     LOGGING_ENABLED           = var.logging_enabled
     LOGGING_RETENTION_IN_DAYS = var.logging_retention_in_days
     USE_CLOUDWATCH            = var.use_cloudwatch
