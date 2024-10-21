@@ -195,10 +195,9 @@ No modules.
 | <a name="input_aws_route53_zone"></a> [aws\_route53\_zone](#input\_aws\_route53\_zone) | The Route 53 zone to create the A record in | `string` | `"Z12345678901234567890"` | no |
 | <a name="input_boundary_a_record"></a> [boundary\_a\_record](#input\_boundary\_a\_record) | The A record to create in Route 53 for the Boundary Controller | `string` | `"boundary.example.com"` | no |
 | <a name="input_boundary_admin_users"></a> [boundary\_admin\_users](#input\_boundary\_admin\_users) | The list of Boundary admin users | `list(string)` | <pre>[<br>  "boundary-admin"<br>]</pre> | no |
-| <a name="input_boundary_controller_asg"></a> [boundary\_controller\_asg](#input\_boundary\_controller\_asg) | The configuration for the Boundary Controller Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 3,<br>  "max_size": 6,<br>  "min_size": 3<br>}</pre> | no |
-| <a name="input_boundary_worker_asg"></a> [boundary\_worker\_asg](#input\_boundary\_worker\_asg) | The configuration for the Boundary Worker Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>  })</pre> | <pre>{<br>  "desired_capacity": 1,<br>  "max_size": 10,<br>  "min_size": 1<br>}</pre> | no |
-| <a name="input_controller_instance_type"></a> [controller\_instance\_type](#input\_controller\_instance\_type) | The instance type to use for the Boundary Controller | `string` | `"t3.micro"` | no |
-| <a name="input_controller_instance_volume_size"></a> [controller\_instance\_volume\_size](#input\_controller\_instance\_volume\_size) | The size of the EBS volume to use for the Boundary Controller | `number` | `50` | no |
+| <a name="input_boundary_controller_asg"></a> [boundary\_controller\_asg](#input\_boundary\_controller\_asg) | The configuration for the Boundary Controller Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>    default_cooldown = number<br>    instance_warmup  = number<br>  })</pre> | <pre>{<br>  "default_cooldown": 300,<br>  "desired_capacity": 3,<br>  "instance_warmup": 300,<br>  "max_size": 6,<br>  "min_size": 3<br>}</pre> | no |
+| <a name="input_boundary_worker_asg"></a> [boundary\_worker\_asg](#input\_boundary\_worker\_asg) | The configuration for the Boundary Worker Auto Scaling Group | <pre>object({<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>    default_cooldown = number<br>    instance_warmup  = number<br>  })</pre> | <pre>{<br>  "default_cooldown": 300,<br>  "desired_capacity": 1,<br>  "instance_warmup": 300,<br>  "max_size": 10,<br>  "min_size": 1<br>}</pre> | no |
+| <a name="input_controller_deployment_type"></a> [controller\_deployment\_type](#input\_controller\_deployment\_type) | The deployment type to use for the Boundary Controller | `string` | `"development"` | no |
 | <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Whether to create a new VPC | `bool` | `true` | no |
 | <a name="input_db_allocated_storage"></a> [db\_allocated\_storage](#input\_db\_allocated\_storage) | The amount of storage to allocate for the Boundary Database | `number` | `20` | no |
 | <a name="input_db_backup_enabled"></a> [db\_backup\_enabled](#input\_db\_backup\_enabled) | Whether to enable backups for the Boundary Database | `bool` | `true` | no |
@@ -225,8 +224,7 @@ No modules.
 | <a name="input_use_ssm"></a> [use\_ssm](#input\_use\_ssm) | Whether to use AWS SSM to access the Boundary Controllers and Workers | `bool` | `false` | no |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | The CIDR block for the VPC | `string` | `"10.0.0.0/16"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC | `string` | `"vpc-0123456789abcdefg"` | no |
-| <a name="input_worker_instance_type"></a> [worker\_instance\_type](#input\_worker\_instance\_type) | The instance type to use for the Boundary Workers | `string` | `"t3.micro"` | no |
-| <a name="input_worker_instance_volume_size"></a> [worker\_instance\_volume\_size](#input\_worker\_instance\_volume\_size) | The size of the EBS volume to use for the Boundary Workers | `number` | `50` | no |
+| <a name="input_worker_deployment_type"></a> [worker\_deployment\_type](#input\_worker\_deployment\_type) | The deployment type to use for the Boundary Worker | `string` | `"development"` | no |
 
 ## Outputs
 

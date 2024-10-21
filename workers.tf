@@ -46,7 +46,7 @@ resource "aws_security_group_rule" "boundary_worker_allow_egress" {
 resource "aws_launch_template" "boundary_worker" {
   name                   = "${var.name}-worker-lt"
   image_id               = data.aws_ami.main.id
-  instance_type          = var.worker_instance_type
+  instance_type          = local.workers_sizing[var.worker_deployment_type].instance_type
   key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_worker.id]
 
@@ -54,7 +54,7 @@ resource "aws_launch_template" "boundary_worker" {
     device_name = "/dev/sda1"
 
     ebs {
-      volume_size = var.worker_instance_volume_size
+      volume_size = local.workers_sizing[var.worker_deployment_type].volume_size
     }
   }
 
@@ -80,12 +80,42 @@ resource "aws_launch_template" "boundary_worker" {
 }
 
 resource "aws_autoscaling_group" "boundary_worker" {
+  depends_on = [aws_autoscaling_group.boundary_controller]
+
   name             = "${var.name}-worker-asg"
   min_size         = var.boundary_worker_asg.min_size
   max_size         = var.boundary_worker_asg.max_size
   desired_capacity = var.boundary_worker_asg.desired_capacity
 
+  default_cooldown = var.boundary_worker_asg.default_cooldown
+
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceCapacity",
+    "GroupPendingCapacity",
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupStandbyCapacity",
+    "GroupTerminatingCapacity",
+    "GroupTerminatingInstances",
+    "GroupTotalCapacity",
+    "GroupTotalInstances"
+  ]
+
+  termination_policies = ["OldestInstance"]
+
   vpc_zone_identifier = var.create_vpc == true ? aws_subnet.public[*].id : var.public_subnet_ids
+
+  instance_refresh {
+    preferences {
+      instance_warmup        = var.boundary_worker_asg.instance_warmup
+      min_healthy_percentage = 90
+    }
+    strategy = "Rolling"
+  }
 
   launch_template {
     id      = aws_launch_template.boundary_worker.id

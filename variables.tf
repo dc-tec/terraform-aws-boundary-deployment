@@ -195,51 +195,27 @@ variable "db_username" {
 }
 
 # Instance configuration
-variable "controller_instance_type" {
+variable "controller_deployment_type" {
   type        = string
-  description = "The instance type to use for the Boundary Controller"
+  description = "The deployment type to use for the Boundary Controller"
 
-  default = "t3.micro"
+  default = "development"
 
   validation {
-    condition     = can(regex("^[a-z][1-9][.][a-z0-9]+$", var.controller_instance_type))
-    error_message = "The controller_instance_type must be a valid EC2 instance type."
+    condition     = contains(["development", "small", "large"], var.controller_deployment_type)
+    error_message = "The controller deployment type must be one of 'development', 'small', or 'large'."
   }
 }
 
-variable "controller_instance_volume_size" {
-  type        = number
-  description = "The size of the EBS volume to use for the Boundary Controller"
-
-  default = 50
-
-  validation {
-    condition     = var.controller_instance_volume_size >= 20
-    error_message = "The controller_instance_volume_size must be at least 20GB."
-  }
-}
-
-variable "worker_instance_type" {
+variable "worker_deployment_type" {
   type        = string
-  description = "The instance type to use for the Boundary Workers"
+  description = "The deployment type to use for the Boundary Worker"
 
-  default = "t3.micro"
-
-  validation {
-    condition     = can(regex("^[a-z][1-9][.][a-z0-9]+$", var.worker_instance_type))
-    error_message = "The worker_instance_type must be a valid EC2 instance type."
-  }
-}
-
-variable "worker_instance_volume_size" {
-  type        = number
-  description = "The size of the EBS volume to use for the Boundary Workers"
-
-  default = 50
+  default = "development"
 
   validation {
-    condition     = var.worker_instance_volume_size >= 20
-    error_message = "The worker_instance_volume_size must be at least 20GB."
+    condition     = contains(["development", "small", "large"], var.worker_deployment_type)
+    error_message = "The worker deployment type must be one of 'development', 'small', or 'large'."
   }
 }
 
@@ -249,6 +225,8 @@ variable "boundary_controller_asg" {
     min_size         = number
     max_size         = number
     desired_capacity = number
+    default_cooldown = number
+    instance_warmup  = number
   })
 
   description = "The configuration for the Boundary Controller Auto Scaling Group"
@@ -257,6 +235,8 @@ variable "boundary_controller_asg" {
     min_size         = 3
     max_size         = 6
     desired_capacity = 3
+    default_cooldown = 300
+    instance_warmup  = 300
   }
 
   validation {
@@ -270,6 +250,8 @@ variable "boundary_worker_asg" {
     min_size         = number
     max_size         = number
     desired_capacity = number
+    default_cooldown = number
+    instance_warmup  = number
   })
   description = "The configuration for the Boundary Worker Auto Scaling Group"
 
@@ -277,6 +259,8 @@ variable "boundary_worker_asg" {
     min_size         = 1
     max_size         = 10
     desired_capacity = 1
+    default_cooldown = 300
+    instance_warmup  = 300
   }
 
   validation {

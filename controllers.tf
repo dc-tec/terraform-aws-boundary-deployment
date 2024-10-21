@@ -72,7 +72,7 @@ resource "aws_security_group_rule" "allow_egress_boundary_controller" {
 resource "aws_launch_template" "boundary_controller" {
   name                   = "${var.name}-controller-lt"
   image_id               = data.aws_ami.main.id
-  instance_type          = var.controller_instance_type
+  instance_type          = local.controllers_sizing[var.controller_deployment_type].instance_type
   key_name               = var.ssh_public_key
   vpc_security_group_ids = [aws_security_group.boundary_controller.id]
 
@@ -80,7 +80,7 @@ resource "aws_launch_template" "boundary_controller" {
     device_name = "/dev/sda1"
 
     ebs {
-      volume_size = var.controller_instance_volume_size
+      volume_size = local.controllers_sizing[var.controller_deployment_type].volume_size
     }
   }
 
@@ -120,11 +120,39 @@ resource "aws_autoscaling_group" "boundary_controller" {
   max_size         = var.boundary_controller_asg.max_size
   desired_capacity = var.boundary_controller_asg.desired_capacity
 
-  vpc_zone_identifier = var.create_vpc == true ? aws_subnet.public[*].id : var.private_subnet_ids
+  default_cooldown = var.boundary_controller_asg.default_cooldown
+
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceCapacity",
+    "GroupPendingCapacity",
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupStandbyCapacity",
+    "GroupTerminatingCapacity",
+    "GroupTerminatingInstances",
+    "GroupTotalCapacity",
+    "GroupTotalInstances"
+  ]
+
+  termination_policies = ["OldestInstance"]
+  vpc_zone_identifier  = var.create_vpc == true ? aws_subnet.public[*].id : var.private_subnet_ids
+
   target_group_arns = [
     aws_lb_target_group.boundary_lb_controller.arn,
     aws_lb_target_group.boundary_lb_worker.arn
   ]
+
+  instance_refresh {
+    preferences {
+      instance_warmup        = var.boundary_controller_asg.instance_warmup
+      min_healthy_percentage = 90
+    }
+    strategy = "Rolling"
+  }
 
   launch_template {
     id      = aws_launch_template.boundary_controller.id
